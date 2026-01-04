@@ -1,0 +1,24 @@
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Redirect to login if not authenticated (optional - handled by PHP)
+# RewriteCond %{REQUEST_URI} !^/login\.php$
+# RewriteCond %{HTTP_COOKIE} !PHPSESSID
+# RewriteRule ^(.*)$ /login.php [R=302,L]
+
+# Remove .php extension from URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Prevent directory listing
+Options -Indexes
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Permissions-Policy "microphone=*, camera=*"
+</IfModule>
+

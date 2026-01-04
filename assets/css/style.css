@@ -1,0 +1,105 @@
+/* Custom Styles for CyberCrime Shield */
+
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #1e40af;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --info-color: #3b82f6;
+    --dark-color: #1e293b;
+    --light-color: #f8fafc;
+}
+
+body {
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.card {
+    border-radius: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.table {
+    font-size: 0.9rem;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    padding: 0.6rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table {
+        font-size: 0.85rem;
+    }
+}
+
+/* Loading spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
