@@ -4,7 +4,7 @@ require_once 'config/session.php';
 
 // If already logged in, redirect to dashboard
 if (isLoggedIn()) {
-    header('Location: /dashboard.php');
+    header('Location: dashboard.php');
     exit();
 }
 
@@ -31,7 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (password_verify($password, $user['password']) || $password === $user['password']) {
                 // Login successful
                 loginUser($user['id'], $user['username']);
-                header('Location: dashboard.php');
+                // Redirect to dashboard
+                $basePath = dirname($_SERVER['PHP_SELF']);
+                if ($basePath === '/' || $basePath === '\\') {
+                    $basePath = '';
+                }
+                header('Location: ' . $basePath . '/dashboard.php');
                 exit();
             } else {
                 $error = 'Invalid username or password';

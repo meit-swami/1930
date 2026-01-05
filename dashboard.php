@@ -1,10 +1,10 @@
 <?php
+// Set Permissions-Policy header for microphone access (must be before any output)
+header('Permissions-Policy: microphone=*, camera=*');
+
 require_once 'config/database.php';
 require_once 'config/session.php';
 requireLogin();
-
-// Set Permissions-Policy header for microphone access (must be before any output)
-header('Permissions-Policy: microphone=*, camera=*');
 
 $pageTitle = 'Dashboard';
 require_once 'includes/header.php';
@@ -16,21 +16,53 @@ $stats = [];
 
 // Total calls today
 $today = date('Y-m-d');
-$result = $conn->query("SELECT COUNT(*) as count FROM sessions WHERE DATE(start_time) = '$today'");
-$stats['totalCallsToday'] = $result->fetch_assoc()['count'] ?? 0;
+try {
+    $result = $conn->query("SELECT COUNT(*) as count FROM sessions WHERE DATE(start_time) = '$today'");
+    if ($result) {
+        $stats['totalCallsToday'] = $result->fetch_assoc()['count'] ?? 0;
+    } else {
+        $stats['totalCallsToday'] = 0;
+    }
+} catch (Exception $e) {
+    $stats['totalCallsToday'] = 0;
+}
 
 // Active sessions
-$result = $conn->query("SELECT COUNT(*) as count FROM sessions WHERE status = 'active'");
-$stats['activeSessions'] = $result->fetch_assoc()['count'] ?? 0;
+try {
+    $result = $conn->query("SELECT COUNT(*) as count FROM sessions WHERE status = 'active'");
+    if ($result) {
+        $stats['activeSessions'] = $result->fetch_assoc()['count'] ?? 0;
+    } else {
+        $stats['activeSessions'] = 0;
+    }
+} catch (Exception $e) {
+    $stats['activeSessions'] = 0;
+}
 
 // Resolved complaints
-$result = $conn->query("SELECT COUNT(*) as count FROM complaints WHERE status = 'resolved'");
-$stats['resolvedComplaints'] = $result->fetch_assoc()['count'] ?? 0;
+try {
+    $result = $conn->query("SELECT COUNT(*) as count FROM complaints WHERE status = 'resolved'");
+    if ($result) {
+        $stats['resolvedComplaints'] = $result->fetch_assoc()['count'] ?? 0;
+    } else {
+        $stats['resolvedComplaints'] = 0;
+    }
+} catch (Exception $e) {
+    $stats['resolvedComplaints'] = 0;
+}
 
 // Average duration
-$result = $conn->query("SELECT AVG(duration) as avg FROM sessions WHERE duration > 0");
-$avgDuration = $result->fetch_assoc()['avg'] ?? 0;
-$stats['averageDuration'] = round($avgDuration / 60, 1); // Convert to minutes
+try {
+    $result = $conn->query("SELECT AVG(duration) as avg FROM sessions WHERE duration > 0");
+    if ($result) {
+        $avgDuration = $result->fetch_assoc()['avg'] ?? 0;
+        $stats['averageDuration'] = round($avgDuration / 60, 1); // Convert to minutes
+    } else {
+        $stats['averageDuration'] = 0;
+    }
+} catch (Exception $e) {
+    $stats['averageDuration'] = 0;
+}
 
 // Get Omni Dimension credits (if available)
 $stats['credits'] = null;
@@ -45,9 +77,15 @@ try {
 
 // Get recent sessions
 $recentSessions = [];
-$result = $conn->query("SELECT * FROM sessions ORDER BY start_time DESC LIMIT 5");
-while ($row = $result->fetch_assoc()) {
-    $recentSessions[] = $row;
+try {
+    $result = $conn->query("SELECT * FROM sessions ORDER BY start_time DESC LIMIT 5");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $recentSessions[] = $row;
+        }
+    }
+} catch (Exception $e) {
+    // Table might not exist yet
 }
 ?>
 
