@@ -1,4 +1,11 @@
 <?php
+// Check if mysqli extension is available
+if (!extension_loaded('mysqli')) {
+    http_response_code(503);
+    echo '<!DOCTYPE html><html><head><title>Service Unavailable</title></head><body><h1>Service Unavailable</h1><p>MySQLi extension is not loaded. Please contact the administrator.</p></body></html>';
+    exit();
+}
+
 require_once 'config/database.php';
 require_once 'config/session.php';
 
@@ -16,36 +23,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     
     if (!empty($username) && !empty($password)) {
-        $conn = getDBConnection();
-        
-        // Prepare statement to prevent SQL injection
-        $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
+        try {
+            $conn = getDBConnection();
             
-            // Verify password (assuming passwords are hashed)
-            if (password_verify($password, $user['password']) || $password === $user['password']) {
-                // Login successful
-                loginUser($user['id'], $user['username']);
-                // Redirect to dashboard
-                $basePath = dirname($_SERVER['PHP_SELF']);
-                if ($basePath === '/' || $basePath === '\\') {
-                    $basePath = '';
-                }
-                header('Location: ' . $basePath . '/dashboard.php');
-                exit();
+            if ($conn === false || $conn === null) {
+                $error = 'Database connection failed. Please try again later.';
             } else {
-                $error = 'Invalid username or password';
+                // Prepare statement to prevent SQL injection
+                $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
+                
+                if (!$stmt) {
+                    $error = 'Database error. Please try again later.';
+                } else {
+                    $stmt->bind_param("s", $username);
+                    
+                    if (!$stmt->execute()) {
+                        $error = 'Login failed. Please try again.';
+                    } else {
+                        $result = $stmt->get_result();
+                        
+                        if ($result && $result->num_rows === 1) {
+                            $user = $result->fetch_assoc();
+                            
+                            // Verify password (assuming passwords are hashed)
+                            if (password_verify($password, $user['password']) || $password === $user['password']) {
+                                // Login successful
+                                loginUser($user['id'], $user['username']);
+                                // Redirect to dashboard
+                                $basePath = dirname($_SERVER['PHP_SELF']);
+                                if ($basePath === '/' || $basePath === '\\') {
+                                    $basePath = '';
+                                }
+                                header('Location: ' . $basePath . '/dashboard.php');
+                                exit();
+                            } else {
+                                $error = 'Invalid username or password';
+                            }
+                        } else {
+                            $error = 'Invalid username or password';
+                        }
+                    }
+                    
+                    $stmt->close();
+                }
             }
-        } else {
-            $error = 'Invalid username or password';
+        } catch (Exception $e) {
+            // Log error for debugging (in production, log to file instead of displaying)
+            error_log('Login error: ' . $e->getMessage());
+            $error = 'An error occurred during login. Please try again.';
         }
-        
-        $stmt->close();
     } else {
         $error = 'Please enter both username and password';
     }
