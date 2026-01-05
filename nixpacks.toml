@@ -1,0 +1,16 @@
+[phases.setup]
+nixPkgs = { php = "php82", phpExtensions = "php82Extensions" }
+
+[phases.install]
+cmds = [
+  "composer install --no-dev --optimize-autoloader"
+]
+
+[phases.build]
+cmds = [
+  "php -m | grep -i mysqli || echo 'MySQLi check'"
+]
+
+[start]
+cmd = "php -d extension=mysqli -d extension=pdo_mysql -S 0.0.0.0:$PORT -t ."
+
